@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Session Manager - Instructor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .session-code {
+            font-size: 48px;
+            font-weight: 700;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            margin: 20px 0;
+            letter-spacing: 5px;
+        }
+
+        .session-url {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            word-break: break-all;
+            font-family: monospace;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: inline-block;
+            text-decoration: none;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        }
+
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 20px auto;
+        }
+
+        .qr-container {
+            text-align: center;
+        }
+
+        .info-box {
+            background: #e6f7ff;
+            border-left: 4px solid #1890ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        #sessionDisplay {
+            display: none;
+        }
+
+        .timestamp {
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Session Manager</h1>
+            <p>Create attendance sessions for your class</p>
+        </div>
+
+        <div class="card">
+            <div class="info-box">
+                <strong>💡 Instructions:</strong><br>
+                1. Click "Generate New Session" button<br>
+                2. A unique 6-character code will be created<br>
+                3. Show the QR code to your students<br>
+                4. Students scan to check in<br>
+                5. When class ends, generate a new session for next time
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-success" onclick="generateSession()">🎓 Generate New Session</button>
+                <button class="btn btn-secondary" onclick="window.location.href='attendance-dashboard.html'">📊 View Dashboard</button>
+            </div>
+        </div>
+
+        <div class="card" id="sessionDisplay">
+            <h2 style="text-align: center; color: #333; margin-bottom: 20px;">Current Session</h2>
+            
+            <div class="session-code" id="sessionCode">------</div>
+            <div class="timestamp" id="timestamp"></div>
+
+            <div class="info-box">
+                <strong>Check-in URL:</strong>
+                <div class="session-url" id="sessionUrl"></div>
+            </div>
+
+            <div class="qr-container">
+                <div id="qrcode"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" onclick="downloadQR()">📥 Download QR</button>
+                <button class="btn btn-secondary" onclick="printQR()">🖨️ Print QR</button>
+                <button class="btn" onclick="copyURL()">📋 Copy URL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        let currentSessionCode = '';
+        let currentSessionURL = '';
+
+        // Generate random 6-character code
+        function generateSessionCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // Generate new session
+        function generateSession() {
+            currentSessionCode = generateSessionCode();
+            const baseURL = window.location.origin + window.location.pathname.replace('simple-session-manager.html', '');
+            currentSessionURL = `${baseURL}checkin.html?session=${currentSessionCode}`;
+
+            // Display session
+            document.getElementById('sessionCode').textContent = currentSessionCode;
+            document.getElementById('sessionUrl').textContent = currentSessionURL;
+            document.getElementById('timestamp').textContent = 'Created: ' + new Date().toLocaleString();
+            document.getElementById('sessionDisplay').style.display = 'block';
+
+            // Generate QR code
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            
+            new QRCode(qrContainer, {
+                text: currentSessionURL,
+                width: 300,
+                height: 300,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Save to localStorage for tracking
+            const sessions = JSON.parse(localStorage.getItem('simpleSessions') || '[]');
+            sessions.push({
+                code: currentSessionCode,
+                timestamp: new Date().toISOString(),
+                url: currentSessionURL
+            });
+            localStorage.setItem('simpleSessions', JSON.stringify(sessions));
+        }
+
+        // Download QR code
+        function downloadQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('Please generate a session first');
+                return;
+            }
+
+            const url = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `session-${currentSessionCode}-qr.png`;
+            link.href = url;
+            link.click();
+        }
+
+        // Print QR code
+        function printQR() {
+            if (!currentSessionCode) {
+                alert('Please generate a session first');
+                return;
+            }
+
+            const qrContainer = document.getElementById('qrcode');
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Session QR Code</title>');
+            printWindow.document.write('<style>body{text-align:center;padding:50px;font-family:Arial,sans-serif;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h1>Thermodynamics Class - Attendance</h1>');
+            printWindow.document.write('<h2>Kuwait University</h2>');
+            printWindow.document.write(`<h3>Session Code: ${currentSessionCode}</h3>`);
+            printWindow.document.write(qrContainer.innerHTML);
+            printWindow.document.write('<p style="margin-top:30px;"><strong>Scan to check in for class</strong></p>');
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Copy URL to clipboard
+        function copyURL() {
+            if (!currentSessionURL) {
+                alert('Please generate a session first');
+                return;
+            }
+
+            navigator.clipboard.writeText(currentSessionURL).then(() => {
+                alert('✓ URL copied to clipboard!');
+            }).catch(() => {
+                alert('Could not copy URL. Please copy manually.');
+            });
+        }
+    </script>
+</body>
+</html>

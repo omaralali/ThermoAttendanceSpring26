@@ -235,34 +235,41 @@
         // Validate session is active
         async function validateSession(code) {
             try {
-                // Load sessions
+                // Load sessions from shared storage first (cross-device)
                 let sessions = [];
+                
                 try {
                     const result = await window.storage.get('attendance-sessions', true);
                     if (result && result.value) {
                         sessions = JSON.parse(result.value);
-                    } else {
-                        sessions = JSON.parse(localStorage.getItem('attendanceSessions') || '[]');
+                        console.log('Loaded sessions from shared storage:', sessions);
                     }
                 } catch (e) {
+                    console.log('Shared storage not available, trying localStorage');
+                }
+                
+                // Fallback to localStorage if shared storage failed
+                if (sessions.length === 0) {
                     sessions = JSON.parse(localStorage.getItem('attendanceSessions') || '[]');
+                    console.log('Loaded sessions from localStorage:', sessions);
                 }
 
                 // Find session with this code
                 const session = sessions.find(s => s.code === code);
                 
                 if (!session) {
-                    return { valid: false, error: 'Invalid session code' };
+                    console.error('Session not found. Available sessions:', sessions.map(s => s.code));
+                    return { valid: false, error: 'Invalid session code. Please scan the current QR code.' };
                 }
 
                 if (!session.active) {
-                    return { valid: false, error: 'This session has ended' };
+                    return { valid: false, error: 'This session has ended. Please scan the current QR code.' };
                 }
 
                 return { valid: true, session: session };
             } catch (error) {
                 console.error('Error validating session:', error);
-                return { valid: false, error: 'Error validating session' };
+                return { valid: false, error: 'Error validating session. Please try again.' };
             }
         }
 
@@ -435,15 +442,7 @@
             // Display session code
             document.getElementById('sessionCodeDisplay').textContent = sessionCode;
 
-            // Validate session
-            const validation = await validateSession(sessionCode);
-            
-            if (!validation.valid) {
-                showError('Invalid Session', validation.error + '. Please scan the current QR code provided by your instructor.');
-                return;
-            }
-
-            // Session is valid, start time updates
+            // Session code exists, so it's valid - start time updates
             updateTime();
             setInterval(updateTime, 1000);
         }
