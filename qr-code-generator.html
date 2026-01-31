@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        #qrcode {
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            display: inline-block;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        .note strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 QR Code Generator</h1>
+        <p class="subtitle">Thermodynamics Class Attendance System</p>
+
+        <div class="input-group">
+            <label for="urlInput">Enter the Attendance Check-in Page URL:</label>
+            <input 
+                type="url" 
+                id="urlInput" 
+                placeholder="Paste the URL of attendance-checkin.html here"
+                value=""
+            >
+        </div>
+
+        <button onclick="generateQR()">Generate QR Code</button>
+
+        <div id="qrcode"></div>
+
+        <div style="margin-top: 20px;">
+            <button onclick="downloadQR()" id="downloadBtn" style="display:none;">📥 Download QR Code</button>
+            <button onclick="printQR()" id="printBtn" style="display:none;">🖨️ Print QR Code</button>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li><strong>Upload the files:</strong> Upload both <code>attendance-checkin.html</code> and <code>attendance-dashboard.html</code> to a web server or hosting service.</li>
+                <li><strong>Get the URL:</strong> Copy the full URL of the <code>attendance-checkin.html</code> page.</li>
+                <li><strong>Generate QR Code:</strong> Paste the URL in the field above and click "Generate QR Code".</li>
+                <li><strong>Display in Class:</strong> Download or print the QR code and display it on the board before class starts.</li>
+                <li><strong>Monitor Attendance:</strong> Use the dashboard to view real-time attendance and export reports.</li>
+            </ol>
+
+            <div class="note">
+                <strong>💡 Tip:</strong> You can use free hosting services like GitHub Pages, Netlify, or Vercel to host these HTML files. Once hosted, the QR code will work on any device with a camera!
+            </div>
+        </div>
+    </div>
+
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        let qrCodeInstance = null;
+
+        function generateQR() {
+            const url = document.getElementById('urlInput').value.trim();
+            
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                alert('Please enter a valid URL starting with http:// or https://');
+                return;
+            }
+
+            // Clear previous QR code
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+
+            // Generate new QR code
+            qrCodeInstance = new QRCode(qrContainer, {
+                text: url,
+                width: 300,
+                height: 300,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Show download and print buttons
+            document.getElementById('downloadBtn').style.display = 'inline-block';
+            document.getElementById('printBtn').style.display = 'inline-block';
+        }
+
+        function downloadQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('Please generate a QR code first');
+                return;
+            }
+
+            const url = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = 'attendance-qr-code.png';
+            link.href = url;
+            link.click();
+        }
+
+        function printQR() {
+            const qrContainer = document.getElementById('qrcode');
+            if (!qrContainer.innerHTML) {
+                alert('Please generate a QR code first');
+                return;
+            }
+
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Attendance QR Code</title>');
+            printWindow.document.write('<style>body{text-align:center;padding:50px;font-family:Arial,sans-serif;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h1>Thermodynamics Class - Attendance Check-in</h1>');
+            printWindow.document.write('<h2>Kuwait University</h2>');
+            printWindow.document.write('<p>Scan to check in for attendance</p>');
+            printWindow.document.write(qrContainer.innerHTML);
+            printWindow.document.write('<p style="margin-top:30px;"><strong>Class Time:</strong> Sunday, Tuesday, Thursday at 1:00 PM</p>');
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+    </script>
+</body>
+</html>
