@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-in Confirmation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .confirmation-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .status-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .status-on-time .status-title {
+            color: #22543d;
+        }
+
+        .status-late .status-title {
+            color: #744210;
+        }
+
+        .status-very-late .status-title {
+            color: #742a2a;
+        }
+
+        .status-message {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .student-info {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .student-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .student-info-row:last-child {
+            border-bottom: none;
+        }
+
+        .student-info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .student-info-value {
+            color: #333;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .history-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.on-time {
+            color: #48bb78;
+        }
+
+        .stat-value.late {
+            color: #ed8936;
+        }
+
+        .stat-value.very-late {
+            color: #f56565;
+        }
+
+        .stat-value.total {
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .attendance-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .attendance-item {
+            background: #f7fafc;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .attendance-date {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .attendance-time {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-on-time {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-late {
+            background: #fef5e7;
+            color: #744210;
+        }
+
+        .badge-very-late {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+            margin-top: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .empty-history-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .confirmation-card, .history-card {
+                padding: 25px;
+            }
+
+            .status-title {
+                font-size: 24px;
+            }
+
+            .status-icon {
+                font-size: 60px;
+            }
+
+            .student-info-row {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="confirmation-card" id="confirmationCard">
+            <div class="status-icon" id="statusIcon">⏱️</div>
+            <div class="status-title" id="statusTitle">Loading...</div>
+            <div class="status-message" id="statusMessage"></div>
+
+            <div class="student-info">
+                <div class="student-info-row">
+                    <span class="student-info-label">Student ID:</span>
+                    <span class="student-info-value" id="studentId">-</span>
+                </div>
+                <div class="student-info-row">
+                    <span class="student-info-label">Name:</span>
+                    <span class="student-info-value" id="studentName">-</span>
+                </div>
+                <div class="student-info-row">
+                    <span class="student-info-label">Date:</span>
+                    <span class="student-info-value" id="checkInDate">-</span>
+                </div>
+                <div class="student-info-row">
+                    <span class="student-info-label">Check-in Time:</span>
+                    <span class="student-info-value" id="checkInTime">-</span>
+                </div>
+            </div>
+
+            <a href="index.html" class="btn">← Back to Check-in Page</a>
+        </div>
+
+        <div class="history-card">
+            <h2>📊 Your Attendance History</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value total" id="totalClasses">0</div>
+                    <div class="stat-label">Total Classes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value on-time" id="onTimeCount">0</div>
+                    <div class="stat-label">On-Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value late" id="lateCount">0</div>
+                    <div class="stat-label">Late</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value very-late" id="veryLateCount">0</div>
+                    <div class="stat-label">Very Late</div>
+                </div>
+            </div>
+
+            <div id="attendanceList" class="attendance-list">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get check-in data from URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Load and display check-in confirmation
+        async function loadConfirmation() {
+            const studentId = getUrlParameter('studentId');
+            const studentName = getUrlParameter('studentName');
+            const status = getUrlParameter('status');
+            const date = getUrlParameter('date');
+            const time = getUrlParameter('time');
+
+            if (!studentId || !status) {
+                // No data, redirect to check-in page
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Display confirmation
+            document.getElementById('studentId').textContent = studentId;
+            document.getElementById('studentName').textContent = studentName;
+            document.getElementById('checkInDate').textContent = new Date(date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('checkInTime').textContent = time;
+
+            const confirmationCard = document.getElementById('confirmationCard');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+
+            if (status === 'ON-TIME') {
+                confirmationCard.classList.add('status-on-time');
+                statusIcon.textContent = '✅';
+                statusTitle.textContent = 'On Time!';
+                statusMessage.textContent = 'Great job! You arrived on time for class.';
+            } else if (status === 'LATE') {
+                confirmationCard.classList.add('status-late');
+                statusIcon.textContent = '⚠️';
+                statusTitle.textContent = 'Late';
+                statusMessage.textContent = 'You were a bit late. Try to arrive before 1:00 PM next time.';
+            } else if (status === 'VERY LATE') {
+                confirmationCard.classList.add('status-very-late');
+                statusIcon.textContent = '⏰';
+                statusTitle.textContent = 'Very Late';
+                statusMessage.textContent = 'You arrived significantly late. Please aim to be on time.';
+            }
+
+            // Load attendance history
+            await loadAttendanceHistory(studentId);
+        }
+
+        // Load student's attendance history
+        async function loadAttendanceHistory(studentId) {
+            try {
+                // Try to load from shared storage
+                let allRecords = [];
+                try {
+                    const result = await window.storage.get('attendance-records', true);
+                    if (result && result.value) {
+                        allRecords = JSON.parse(result.value);
+                    }
+                } catch (e) {
+                    // Fallback to localStorage
+                    allRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+                }
+
+                // Filter records for this student
+                const studentRecords = allRecords.filter(record => record.studentId === studentId);
+
+                // Sort by date (most recent first)
+                studentRecords.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                // Calculate statistics
+                const totalClasses = studentRecords.length;
+                const onTimeCount = studentRecords.filter(r => r.status === 'ON-TIME').length;
+                const lateCount = studentRecords.filter(r => r.status === 'LATE').length;
+                const veryLateCount = studentRecords.filter(r => r.status === 'VERY LATE').length;
+
+                // Update statistics
+                document.getElementById('totalClasses').textContent = totalClasses;
+                document.getElementById('onTimeCount').textContent = onTimeCount;
+                document.getElementById('lateCount').textContent = lateCount;
+                document.getElementById('veryLateCount').textContent = veryLateCount;
+
+                // Display attendance list
+                const attendanceList = document.getElementById('attendanceList');
+
+                if (studentRecords.length === 0) {
+                    attendanceList.innerHTML = `
+                        <div class="empty-history">
+                            <div class="empty-history-icon">📭</div>
+                            <p>This is your first check-in!</p>
+                        </div>
+                    `;
+                } else {
+                    attendanceList.innerHTML = studentRecords.map(record => {
+                        const date = new Date(record.date);
+                        const formattedDate = date.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            weekday: 'short'
+                        });
+
+                        const badgeClass = record.status === 'ON-TIME' ? 'badge-on-time' :
+                                          record.status === 'LATE' ? 'badge-late' : 'badge-very-late';
+
+                        return `
+                            <div class="attendance-item">
+                                <div>
+                                    <div class="attendance-date">${formattedDate}</div>
+                                    <div class="attendance-time">${record.time}</div>
+                                </div>
+                                <span class="status-badge ${badgeClass}">${record.status}</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+            } catch (error) {
+                console.error('Error loading attendance history:', error);
+                document.getElementById('attendanceList').innerHTML = `
+                    <div class="empty-history">
+                        <div class="empty-history-icon">⚠️</div>
+                        <p>Unable to load attendance history</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load confirmation on page load
+        loadConfirmation();
+    </script>
+</body>
+</html>

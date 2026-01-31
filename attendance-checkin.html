@@ -269,25 +269,9 @@
                 // Also store in window.storage for persistence across sessions
                 await window.storage.set('attendance-records', JSON.stringify(existingRecords), true);
 
-                // Show success message based on status
-                let message = '';
-                let messageClass = '';
-
-                if (status === 'ON-TIME') {
-                    message = `✓ Check-in successful! Welcome, ${studentName}. You're on time!`;
-                    messageClass = 'success';
-                } else if (status === 'LATE') {
-                    message = `⚠ Check-in recorded, ${studentName}. You are marked as LATE.`;
-                    messageClass = 'late';
-                } else {
-                    message = `⚠ Check-in recorded, ${studentName}. You are marked as VERY LATE.`;
-                    messageClass = 'very-late';
-                }
-
-                showMessage(message, messageClass);
-
-                // Clear form
-                document.getElementById('attendanceForm').reset();
+                // Redirect to confirmation page
+                const confirmationUrl = `confirmation.html?studentId=${encodeURIComponent(studentId)}&studentName=${encodeURIComponent(studentName)}&status=${encodeURIComponent(status)}&date=${encodeURIComponent(attendanceRecord.date)}&time=${encodeURIComponent(attendanceRecord.time)}`;
+                window.location.href = confirmationUrl;
 
             } catch (error) {
                 console.error('Error saving attendance:', error);

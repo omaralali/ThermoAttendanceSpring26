@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thermodynamics Attendance System</title>
+    <title>Thermodynamics Class - Attendance Check-in</title>
     <style>
         * {
             margin: 0;
@@ -24,150 +24,285 @@
         .container {
             background: white;
             border-radius: 20px;
-            padding: 50px;
+            padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
-            text-align: center;
         }
 
         h1 {
             color: #333;
+            text-align: center;
             margin-bottom: 10px;
-            font-size: 32px;
+            font-size: 28px;
         }
 
         .subtitle {
+            text-align: center;
             color: #666;
-            margin-bottom: 40px;
-            font-size: 16px;
-        }
-
-        .role-section {
-            margin-bottom: 20px;
-        }
-
-        .role-card {
-            background: #f7fafc;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-
-        .role-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
-            border-color: #667eea;
-        }
-
-        .role-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .role-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .role-desc {
-            color: #666;
+            margin-bottom: 30px;
             font-size: 14px;
-            margin-bottom: 20px;
         }
 
-        .btn {
-            display: inline-block;
-            padding: 14px 30px;
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            text-decoration: none;
+            border: none;
             border-radius: 10px;
-            font-weight: 600;
-            transition: transform 0.2s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #48bb78;
-            margin-top: 10px;
-        }
-
-        .info-box {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 30px;
-            text-align: left;
-        }
-
-        .info-box h3 {
-            color: #856404;
-            margin-bottom: 10px;
             font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .info-box p {
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .status-message.late {
+            background-color: #fff3cd;
             color: #856404;
-            line-height: 1.6;
-            font-size: 14px;
+            border: 2px solid #ffeaa7;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 30px 20px;
-            }
+        .status-message.very-late {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
 
-            h1 {
-                font-size: 24px;
-            }
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
 
-            .role-title {
-                font-size: 20px;
-            }
+        .time-display {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .date-display {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #888;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📚 Thermodynamics Class</h1>
-        <p class="subtitle">Kuwait University - Attendance System</p>
+        <p class="subtitle">Kuwait University - Mechanical Engineering</p>
+        
+        <div class="date-display" id="dateDisplay"></div>
+        <div class="time-display" id="currentTime"></div>
 
-        <div class="role-section">
-            <div class="role-card">
-                <div class="role-icon">👨‍🎓</div>
-                <div class="role-title">Students</div>
-                <div class="role-desc">Check in for today's class</div>
-                <a href="attendance-checkin.html" class="btn">Check In Now</a>
+        <form id="attendanceForm">
+            <div class="form-group">
+                <label for="studentId">Student ID</label>
+                <input 
+                    type="text" 
+                    id="studentId" 
+                    name="studentId" 
+                    required 
+                    placeholder="Enter your student ID"
+                    autocomplete="off"
+                >
             </div>
 
-            <div class="role-card">
-                <div class="role-icon">👨‍🏫</div>
-                <div class="role-title">Instructor</div>
-                <div class="role-desc">View attendance dashboard and reports</div>
-                <a href="attendance-dashboard.html" class="btn">Open Dashboard</a>
-                <br>
-                <a href="qr-code-generator.html" class="btn btn-secondary">Generate QR Code</a>
+            <div class="form-group">
+                <label for="studentName">Full Name</label>
+                <input 
+                    type="text" 
+                    id="studentName" 
+                    name="studentName" 
+                    required 
+                    placeholder="Enter your full name"
+                    autocomplete="off"
+                >
             </div>
-        </div>
 
-        <div class="info-box">
-            <h3>ℹ️ Class Information</h3>
-            <p>
-                <strong>Schedule:</strong> Sunday, Tuesday, Thursday at 1:00 PM<br>
-                <strong>Semester:</strong> February 2025 - May 2025<br>
-                <strong>Department:</strong> Mechanical Engineering
-            </p>
-        </div>
+            <button type="submit">✓ Check In</button>
+        </form>
+
+        <div class="status-message" id="statusMessage"></div>
     </div>
+
+    <script>
+        // Update current time display
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+            });
+            document.getElementById('currentTime').textContent = timeString;
+
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('dateDisplay').textContent = dateString;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Determine attendance status based on time
+        function getAttendanceStatus(checkInTime) {
+            const hour = checkInTime.getHours();
+            const minute = checkInTime.getMinutes();
+            
+            // Before 1:00 PM (13:00)
+            if (hour < 13) {
+                return 'ON-TIME';
+            }
+            // Exactly 1:00 PM or between 1:00 and 1:05 PM
+            else if (hour === 13 && minute <= 5) {
+                if (minute === 0) {
+                    return 'ON-TIME';
+                }
+                return 'LATE';
+            }
+            // After 1:05 PM
+            else {
+                return 'VERY LATE';
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('attendanceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const studentId = document.getElementById('studentId').value.trim();
+            const studentName = document.getElementById('studentName').value.trim();
+            const checkInTime = new Date();
+            const status = getAttendanceStatus(checkInTime);
+
+            // Create attendance record
+            const attendanceRecord = {
+                studentId: studentId,
+                studentName: studentName,
+                date: checkInTime.toISOString().split('T')[0],
+                time: checkInTime.toLocaleTimeString('en-US', { hour12: false }),
+                timestamp: checkInTime.toISOString(),
+                status: status
+            };
+
+            // Store in localStorage (persistent storage across sessions)
+            try {
+                // Get existing records
+                const existingRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+                
+                // Check if student already checked in today
+                const today = attendanceRecord.date;
+                const alreadyCheckedIn = existingRecords.some(record => 
+                    record.studentId === studentId && record.date === today
+                );
+
+                if (alreadyCheckedIn) {
+                    showMessage('You have already checked in today!', 'error');
+                    return;
+                }
+
+                // Add new record
+                existingRecords.push(attendanceRecord);
+                localStorage.setItem('attendanceRecords', JSON.stringify(existingRecords));
+
+                // Also store in window.storage for persistence across sessions
+                await window.storage.set('attendance-records', JSON.stringify(existingRecords), true);
+
+                // Redirect to confirmation page
+                const confirmationUrl = `confirmation.html?studentId=${encodeURIComponent(studentId)}&studentName=${encodeURIComponent(studentName)}&status=${encodeURIComponent(status)}&date=${encodeURIComponent(attendanceRecord.date)}&time=${encodeURIComponent(attendanceRecord.time)}`;
+                window.location.href = confirmationUrl;
+
+            } catch (error) {
+                console.error('Error saving attendance:', error);
+                showMessage('Error recording attendance. Please try again.', 'error');
+            }
+        });
+
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status-message ' + type;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Load shared attendance records on page load
+        async function loadSharedRecords() {
+            try {
+                const result = await window.storage.get('attendance-records', true);
+                if (result && result.value) {
+                    localStorage.setItem('attendanceRecords', result.value);
+                }
+            } catch (error) {
+                console.log('No shared records found or error loading:', error);
+            }
+        }
+
+        loadSharedRecords();
+    </script>
 </body>
 </html>
