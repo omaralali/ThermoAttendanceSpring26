@@ -196,7 +196,7 @@
         function generateSession() {
             currentSessionCode = generateSessionCode();
             const baseURL = window.location.origin + window.location.pathname.replace('simple-session-manager.html', '');
-            currentSessionURL = `${baseURL}checkin.html?session=${currentSessionCode}`;
+            currentSessionURL = `${baseURL}checkin-v2.html?session=${currentSessionCode}`;
 
             // Display session
             document.getElementById('sessionCode').textContent = currentSessionCode;
