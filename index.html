@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermodynamics Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .role-section {
+            margin-bottom: 20px;
+        }
+
+        .role-card {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .role-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .role-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .role-desc {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            margin-top: 10px;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .info-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .info-box p {
+            color: #856404;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .role-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Thermodynamics Class</h1>
+        <p class="subtitle">Kuwait University - Attendance System</p>
+
+        <div class="role-section">
+            <div class="role-card">
+                <div class="role-icon">👨‍🎓</div>
+                <div class="role-title">Students</div>
+                <div class="role-desc">Check in for today's class</div>
+                <a href="attendance-checkin.html" class="btn">Check In Now</a>
+            </div>
+
+            <div class="role-card">
+                <div class="role-icon">👨‍🏫</div>
+                <div class="role-title">Instructor</div>
+                <div class="role-desc">View attendance dashboard and reports</div>
+                <a href="attendance-dashboard.html" class="btn">Open Dashboard</a>
+                <br>
+                <a href="qr-code-generator.html" class="btn btn-secondary">Generate QR Code</a>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>ℹ️ Class Information</h3>
+            <p>
+                <strong>Schedule:</strong> Sunday, Tuesday, Thursday at 1:00 PM<br>
+                <strong>Semester:</strong> February 2025 - May 2025<br>
+                <strong>Department:</strong> Mechanical Engineering
+            </p>
+        </div>
+    </div>
+</body>
+</html>
