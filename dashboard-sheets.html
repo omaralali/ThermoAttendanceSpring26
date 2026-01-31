@@ -217,12 +217,6 @@
         let allRecords = [];
 
         async function loadData() {
-            if (GOOGLE_SCRIPT_URL === 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
-                showAlert('❌ Google Script URL not configured. Please update the script.', 'error');
-                document.getElementById('loadingState').innerHTML = '❌ Configuration Error';
-                return;
-            }
-
             document.getElementById('loadingState').style.display = 'block';
             document.getElementById('attendanceTable').style.display = 'none';
             document.getElementById('emptyState').style.display = 'none';
