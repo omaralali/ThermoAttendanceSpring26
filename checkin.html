@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermodynamics Class - Check-in</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .session-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .session-code {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .status-message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .time-display {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .date-display {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 24px;
+            color: #742a2a;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .error-message {
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <h1>📚 Thermodynamics Class</h1>
+        <p class="subtitle">Kuwait University - Mechanical Engineering</p>
+        
+        <div class="session-badge">
+            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 5px;">Session Code</div>
+            <div class="session-code" id="sessionCodeDisplay">------</div>
+        </div>
+        
+        <div class="date-display" id="dateDisplay"></div>
+        <div class="time-display" id="currentTime"></div>
+
+        <form id="attendanceForm">
+            <div class="form-group">
+                <label for="studentId">Student ID</label>
+                <input 
+                    type="text" 
+                    id="studentId" 
+                    name="studentId" 
+                    required 
+                    placeholder="Enter your student ID"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="studentName">Full Name</label>
+                <input 
+                    type="text" 
+                    id="studentName" 
+                    name="studentName" 
+                    required 
+                    placeholder="Enter your full name"
+                    autocomplete="off"
+                >
+            </div>
+
+            <button type="submit" id="submitBtn">✓ Check In</button>
+        </form>
+
+        <div class="status-message" id="statusMessage"></div>
+    </div>
+
+    <script>
+        let sessionCode = null;
+
+        // Get session code from URL
+        function getSessionCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('session');
+        }
+
+        // Validate session is active
+        async function validateSession(code) {
+            try {
+                // Load sessions
+                let sessions = [];
+                try {
+                    const result = await window.storage.get('attendance-sessions', true);
+                    if (result && result.value) {
+                        sessions = JSON.parse(result.value);
+                    } else {
+                        sessions = JSON.parse(localStorage.getItem('attendanceSessions') || '[]');
+                    }
+                } catch (e) {
+                    sessions = JSON.parse(localStorage.getItem('attendanceSessions') || '[]');
+                }
+
+                // Find session with this code
+                const session = sessions.find(s => s.code === code);
+                
+                if (!session) {
+                    return { valid: false, error: 'Invalid session code' };
+                }
+
+                if (!session.active) {
+                    return { valid: false, error: 'This session has ended' };
+                }
+
+                return { valid: true, session: session };
+            } catch (error) {
+                console.error('Error validating session:', error);
+                return { valid: false, error: 'Error validating session' };
+            }
+        }
+
+        // Show error page
+        function showError(title, message) {
+            const container = document.getElementById('mainContainer');
+            container.innerHTML = `
+                <div class="error-container">
+                    <div class="error-icon">❌</div>
+                    <div class="error-title">${title}</div>
+                    <div class="error-message">${message}</div>
+                </div>
+            `;
+        }
+
+        // Update current time display
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+            });
+            const timeEl = document.getElementById('currentTime');
+            if (timeEl) timeEl.textContent = timeString;
+
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const dateEl = document.getElementById('dateDisplay');
+            if (dateEl) dateEl.textContent = dateString;
+        }
+
+        // Determine attendance status based on time
+        function getAttendanceStatus(checkInTime) {
+            const hour = checkInTime.getHours();
+            const minute = checkInTime.getMinutes();
+            
+            // Before 1:00 PM (13:00)
+            if (hour < 13) {
+                return 'ON-TIME';
+            }
+            // Exactly 1:00 PM or between 1:00 and 1:05 PM
+            else if (hour === 13 && minute <= 5) {
+                if (minute === 0) {
+                    return 'ON-TIME';
+                }
+                return 'LATE';
+            }
+            // After 1:05 PM
+            else {
+                return 'VERY LATE';
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('attendanceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Processing...';
+
+            const studentId = document.getElementById('studentId').value.trim();
+            const studentName = document.getElementById('studentName').value.trim();
+            const checkInTime = new Date();
+            const status = getAttendanceStatus(checkInTime);
+
+            // Get IP address
+            let ipAddress = 'Unknown';
+            try {
+                showMessage('🌐 Verifying your connection...', 'info');
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                ipAddress = ipData.ip;
+            } catch (error) {
+                console.error('Error getting IP:', error);
+                // Continue even if IP fetch fails
+            }
+
+            // Create attendance record
+            const attendanceRecord = {
+                studentId: studentId,
+                studentName: studentName,
+                date: checkInTime.toISOString().split('T')[0],
+                time: checkInTime.toLocaleTimeString('en-US', { hour12: false }),
+                timestamp: checkInTime.toISOString(),
+                status: status,
+                ipAddress: ipAddress,
+                sessionCode: sessionCode
+            };
+
+            try {
+                // Get existing records
+                let existingRecords = [];
+                try {
+                    const result = await window.storage.get('attendance-records', true);
+                    if (result && result.value) {
+                        existingRecords = JSON.parse(result.value);
+                    } else {
+                        existingRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+                    }
+                } catch (e) {
+                    existingRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+                }
+                
+                // Check if student already checked in for this session
+                const alreadyCheckedIn = existingRecords.some(record => 
+                    record.studentId === studentId && record.sessionCode === sessionCode
+                );
+
+                if (alreadyCheckedIn) {
+                    showMessage('You have already checked in for this session!', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '✓ Check In';
+                    return;
+                }
+
+                // Add new record
+                existingRecords.push(attendanceRecord);
+                localStorage.setItem('attendanceRecords', JSON.stringify(existingRecords));
+
+                // Also store in window.storage for persistence
+                try {
+                    await window.storage.set('attendance-records', JSON.stringify(existingRecords), true);
+                } catch (error) {
+                    console.error('Error saving to shared storage:', error);
+                }
+
+                // Redirect to confirmation page
+                const confirmationUrl = `confirmation.html?studentId=${encodeURIComponent(studentId)}&studentName=${encodeURIComponent(studentName)}&status=${encodeURIComponent(status)}&date=${encodeURIComponent(attendanceRecord.date)}&time=${encodeURIComponent(attendanceRecord.time)}&session=${encodeURIComponent(sessionCode)}`;
+                window.location.href = confirmationUrl;
+
+            } catch (error) {
+                console.error('Error saving attendance:', error);
+                showMessage('Error recording attendance. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✓ Check In';
+            }
+        });
+
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            if (!statusDiv) return;
+            
+            statusDiv.textContent = message;
+            statusDiv.className = 'status-message ' + type;
+            statusDiv.style.display = 'block';
+
+            if (type !== 'info') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Initialize page
+        async function initializePage() {
+            sessionCode = getSessionCode();
+
+            if (!sessionCode) {
+                showError('No Session Code', 'This link is missing a session code. Please scan the QR code provided by your instructor.');
+                return;
+            }
+
+            // Display session code
+            document.getElementById('sessionCodeDisplay').textContent = sessionCode;
+
+            // Validate session
+            const validation = await validateSession(sessionCode);
+            
+            if (!validation.valid) {
+                showError('Invalid Session', validation.error + '. Please scan the current QR code provided by your instructor.');
+                return;
+            }
+
+            // Session is valid, start time updates
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        // Initialize on page load
+        initializePage();
+    </script>
+</body>
+</html>

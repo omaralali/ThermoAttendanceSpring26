@@ -304,6 +304,10 @@
             <div class="stat-value" id="onTimePercent">0%</div>
             <div class="stat-label">On-Time Rate</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-value" id="duplicateIPs" style="color: #f56565;">0</div>
+            <div class="stat-label">Duplicate IPs</div>
+        </div>
     </div>
 
     <div class="controls">
@@ -335,10 +339,12 @@
             <thead>
                 <tr>
                     <th>Date</th>
+                    <th>Session</th>
                     <th>Student ID</th>
                     <th>Student Name</th>
                     <th>Check-in Time</th>
                     <th>Status</th>
+                    <th>IP Address</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -380,15 +386,28 @@
         // Update statistics
         function updateStats() {
             const uniqueStudents = [...new Set(allRecords.map(r => r.studentId))].length;
-            const uniqueDates = [...new Set(allRecords.map(r => r.date))].length;
+            const uniqueSessions = [...new Set(allRecords.map(r => r.sessionCode).filter(Boolean))].length;
             const totalCheckins = allRecords.length;
             const onTimeCount = allRecords.filter(r => r.status === 'ON-TIME').length;
             const onTimePercent = totalCheckins > 0 ? Math.round((onTimeCount / totalCheckins) * 100) : 0;
 
+            // Count duplicate IPs per session
+            const ipCountBySession = {};
+            let duplicateIPCount = 0;
+            allRecords.forEach(record => {
+                if (record.ipAddress && record.sessionCode) {
+                    const key = `${record.sessionCode}-${record.ipAddress}`;
+                    ipCountBySession[key] = (ipCountBySession[key] || 0) + 1;
+                }
+            });
+            // Count how many session-IP combinations have more than one student
+            duplicateIPCount = Object.values(ipCountBySession).filter(count => count > 1).length;
+
             document.getElementById('totalStudents').textContent = uniqueStudents;
-            document.getElementById('totalSessions').textContent = uniqueDates;
+            document.getElementById('totalSessions').textContent = uniqueSessions;
             document.getElementById('totalCheckins').textContent = totalCheckins;
             document.getElementById('onTimePercent').textContent = onTimePercent + '%';
+            document.getElementById('duplicateIPs').textContent = duplicateIPCount;
         }
 
         // Display records in table
@@ -407,6 +426,15 @@
             // Sort by date and time (most recent first)
             records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
+            // Detect duplicate IP addresses on the same session
+            const ipCountBySession = {};
+            records.forEach(record => {
+                if (record.sessionCode && record.ipAddress) {
+                    const key = `${record.sessionCode}-${record.ipAddress}`;
+                    ipCountBySession[key] = (ipCountBySession[key] || 0) + 1;
+                }
+            });
+
             tbody.innerHTML = records.map(record => {
                 const statusClass = record.status === 'ON-TIME' ? 'status-on-time' : 
                                   record.status === 'LATE' ? 'status-late' : 'status-very-late';
@@ -418,13 +446,29 @@
                     year: 'numeric'
                 });
 
+                // Format IP address with duplicate detection
+                let ipHTML = record.ipAddress || 'N/A';
+                if (record.sessionCode && record.ipAddress) {
+                    const ipKey = `${record.sessionCode}-${record.ipAddress}`;
+                    if (ipCountBySession[ipKey] > 1) {
+                        ipHTML = `<span style="color: #f56565; font-weight: 600;" title="Warning: Multiple students used this IP in this session">⚠️ ${record.ipAddress}</span>`;
+                    } else {
+                        ipHTML = `<span style="color: #555;">${record.ipAddress}</span>`;
+                    }
+                }
+
+                // Format session code
+                const sessionHTML = record.sessionCode || 'N/A';
+
                 return `
                     <tr>
                         <td>${formattedDate}</td>
+                        <td><strong>${sessionHTML}</strong></td>
                         <td>${record.studentId}</td>
                         <td>${record.studentName}</td>
                         <td>${record.time}</td>
                         <td><span class="status-badge ${statusClass}">${record.status}</span></td>
+                        <td>${ipHTML}</td>
                     </tr>
                 `;
             }).join('');
@@ -561,12 +605,14 @@
                 return;
             }
 
-            const headers = ['Date', 'Student ID', 'Student Name', 'Check-in Time', 'Status'];
+            const headers = ['Date', 'Session Code', 'Student ID', 'Student Name', 'Check-in Time', 'Status', 'IP Address'];
             const csvContent = [
                 headers.join(','),
-                ...allRecords.map(r => 
-                    `${r.date},${r.studentId},"${r.studentName}",${r.time},${r.status}`
-                )
+                ...allRecords.map(r => {
+                    const session = r.sessionCode || '';
+                    const ip = r.ipAddress || '';
+                    return `${r.date},${session},${r.studentId},"${r.studentName}",${r.time},${r.status},${ip}`;
+                })
             ].join('\n');
 
             const blob = new Blob([csvContent], { type: 'text/csv' });

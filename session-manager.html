@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Manager - Instructor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: inline-block;
+            text-decoration: none;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        }
+
+        .active-session {
+            background: #d4edda;
+            border: 2px solid #48bb78;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .active-session h3 {
+            color: #22543d;
+            margin-bottom: 10px;
+        }
+
+        .session-code {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 15px 0;
+            letter-spacing: 3px;
+        }
+
+        .session-url {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            word-break: break-all;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 10px auto;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .info-box strong {
+            color: #856404;
+        }
+
+        .session-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .session-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .session-item.active {
+            background: #c6f6d5;
+            border: 2px solid #48bb78;
+        }
+
+        .session-item.expired {
+            opacity: 0.6;
+        }
+
+        .session-info {
+            flex: 1;
+        }
+
+        .session-date {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .session-status {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .badge-active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-expired {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        input[type="datetime-local"] {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Session Manager</h1>
+            <p class="subtitle">Create and manage attendance sessions</p>
+        </div>
+
+        <div class="card" id="activeSessionCard" style="display:none;">
+            <div class="active-session">
+                <h3>✅ Active Session</h3>
+                <div class="session-code" id="activeCode">-</div>
+                <div class="session-info">
+                    <strong>Check-in URL:</strong>
+                    <div class="session-url" id="activeUrl">-</div>
+                </div>
+                <div class="session-info">
+                    <strong>Created:</strong> <span id="activeTime">-</span>
+                </div>
+                <div class="session-info">
+                    <strong>Check-ins:</strong> <span id="activeCheckins">0</span>
+                </div>
+                
+                <div class="qr-container">
+                    <div id="qrcode"></div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="downloadQR()">📥 Download QR Code</button>
+                    <button class="btn btn-secondary" onclick="printQR()">🖨️ Print QR Code</button>
+                    <button class="btn btn-danger" onclick="endSession()">⏹️ End Session</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Create New Session</h2>
+            
+            <div class="info-box">
+                <strong>💡 How it works:</strong> Each class session gets a unique code. Students must use the current session's QR code to check in. Old codes automatically expire.
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-success" onclick="createSession()">🎓 Start New Class Session</button>
+                <button class="btn btn-secondary" onclick="window.location.href='attendance-dashboard.html'">📊 View Dashboard</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Session History</h2>
+            <div class="session-list" id="sessionList">
+                <p style="text-align: center; color: #888; padding: 40px;">No sessions yet. Create your first session above!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        let qrCodeInstance = null;
+        let activeSessions = [];
+        let currentSession = null;
+
+        // Generate random session code
+        function generateSessionCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed confusing characters
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // Create new session
+        async function createSession() {
+            // End any existing active session first
+            if (currentSession && currentSession.active) {
+                endSession();
+            }
+
+            const sessionCode = generateSessionCode();
+            const timestamp = new Date().toISOString();
+            
+            const session = {
+                code: sessionCode,
+                timestamp: timestamp,
+                active: true,
+                checkins: 0,
+                url: `${window.location.origin}${window.location.pathname.replace('session-manager.html', '')}checkin.html?session=${sessionCode}`
+            };
+
+            currentSession = session;
+            activeSessions.push(session);
+            
+            // Save to storage
+            await saveSessionsToStorage();
+            
+            // Display active session
+            displayActiveSession();
+            displaySessionHistory();
+        }
+
+        // Display active session
+        function displayActiveSession() {
+            if (!currentSession || !currentSession.active) {
+                document.getElementById('activeSessionCard').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('activeSessionCard').style.display = 'block';
+            document.getElementById('activeCode').textContent = currentSession.code;
+            document.getElementById('activeUrl').textContent = currentSession.url;
+            document.getElementById('activeTime').textContent = new Date(currentSession.timestamp).toLocaleString();
+            document.getElementById('activeCheckins').textContent = currentSession.checkins;
+
+            // Generate QR code
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            
+            qrCodeInstance = new QRCode(qrContainer, {
+                text: currentSession.url,
+                width: 300,
+                height: 300,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // End current session
+        async function endSession() {
+            if (currentSession) {
+                currentSession.active = false;
+                currentSession = null;
+                await saveSessionsToStorage();
+                displayActiveSession();
+                displaySessionHistory();
+            }
+        }
+
+        // Display session history
+        function displaySessionHistory() {
+            const sessionList = document.getElementById('sessionList');
+            
+            if (activeSessions.length === 0) {
+                sessionList.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">No sessions yet. Create your first session above!</p>';
+                return;
+            }
+
+            // Sort by date (newest first)
+            const sortedSessions = [...activeSessions].sort((a, b) => 
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+
+            sessionList.innerHTML = sortedSessions.map(session => {
+                const date = new Date(session.timestamp);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const statusBadge = session.active 
+                    ? '<span class="badge badge-active">ACTIVE</span>'
+                    : '<span class="badge badge-expired">ENDED</span>';
+
+                const itemClass = session.active ? 'session-item active' : 'session-item expired';
+
+                return `
+                    <div class="${itemClass}">
+                        <div class="session-info">
+                            <div class="session-date">${formattedDate} - Code: ${session.code}</div>
+                            <div class="session-status">Check-ins: ${session.checkins} ${statusBadge}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Save sessions to storage
+        async function saveSessionsToStorage() {
+            localStorage.setItem('attendanceSessions', JSON.stringify(activeSessions));
+            try {
+                await window.storage.set('attendance-sessions', JSON.stringify(activeSessions), true);
+            } catch (error) {
+                console.error('Error saving to shared storage:', error);
+            }
+        }
+
+        // Load sessions from storage
+        async function loadSessionsFromStorage() {
+            try {
+                // Try shared storage first
+                const result = await window.storage.get('attendance-sessions', true);
+                if (result && result.value) {
+                    activeSessions = JSON.parse(result.value);
+                } else {
+                    // Fallback to localStorage
+                    activeSessions = JSON.parse(localStorage.getItem('attendanceSessions') || '[]');
+                }
+
+                // Find active session
+                currentSession = activeSessions.find(s => s.active) || null;
+
+                displayActiveSession();
+                displaySessionHistory();
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+                activeSessions = JSON.parse(localStorage.getItem('attendanceSessions') || '[]');
+                currentSession = activeSessions.find(s => s.active) || null;
+                displayActiveSession();
+                displaySessionHistory();
+            }
+        }
+
+        // Download QR code
+        function downloadQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('No active session QR code');
+                return;
+            }
+
+            const url = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `session-${currentSession.code}-qr.png`;
+            link.href = url;
+            link.click();
+        }
+
+        // Print QR code
+        function printQR() {
+            if (!currentSession) {
+                alert('No active session');
+                return;
+            }
+
+            const qrContainer = document.getElementById('qrcode');
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Session QR Code</title>');
+            printWindow.document.write('<style>body{text-align:center;padding:50px;font-family:Arial,sans-serif;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h1>Thermodynamics Class - Attendance</h1>');
+            printWindow.document.write('<h2>Kuwait University</h2>');
+            printWindow.document.write(`<h3>Session Code: ${currentSession.code}</h3>`);
+            printWindow.document.write(qrContainer.innerHTML);
+            printWindow.document.write('<p style="margin-top:30px;"><strong>Scan to check in for today\'s class</strong></p>');
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Load sessions on page load
+        loadSessionsFromStorage();
+
+        // Auto-refresh checkin count every 10 seconds
+        setInterval(async () => {
+            if (currentSession && currentSession.active) {
+                // Count checkins for this session
+                try {
+                    const result = await window.storage.get('attendance-records', true);
+                    let allRecords = [];
+                    if (result && result.value) {
+                        allRecords = JSON.parse(result.value);
+                    } else {
+                        allRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+                    }
+                    
+                    const sessionCheckins = allRecords.filter(r => r.sessionCode === currentSession.code).length;
+                    currentSession.checkins = sessionCheckins;
+                    document.getElementById('activeCheckins').textContent = sessionCheckins;
+                    
+                    // Update in storage
+                    const sessionIndex = activeSessions.findIndex(s => s.code === currentSession.code);
+                    if (sessionIndex >= 0) {
+                        activeSessions[sessionIndex].checkins = sessionCheckins;
+                        await saveSessionsToStorage();
+                    }
+                } catch (error) {
+                    console.error('Error updating checkin count:', error);
+                }
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
